@@ -9,15 +9,15 @@ LPRNet (License Plate Recognition Network) is employed for recognizing the chara
 
 ## Installation
 1. Clone the repository:
-   ```shell
+```shell
 git clone https://github.com/co-gy/LicensePlateDetector.git
 ```
 2. Navigate to the project directory:
-   ```shell
+```shell
 cd LicensePlateDetector
 ```
 3. Install the required dependencies:
-   ```shell
+```shell
 pip install .
 ```
 
