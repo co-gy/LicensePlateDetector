@@ -6,7 +6,7 @@ import numpy as np
 from data import aug
 from torchvision import transforms
 import matplotlib.pyplot as plt
-# from util import util, html
+from util import util, html
 import cv2
 
 class Debluror(object):

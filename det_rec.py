@@ -20,11 +20,11 @@ class Recognizer(object):
              'W', 'X', 'Y', 'Z', 'I', 'O', '-'
             ]
 
-    def __init__(self, lpr_weights_path, st_weights_path):
+    def __init__(self, weights_path):
         self.lprnet = LPRNet(class_num=len(self.CHARS))
-        self.lprnet.load_state_dict(torch.load(lpr_weights_path))
+        self.lprnet.load_state_dict(torch.load(weights_path)["lprnet_state_dict"])
         self.stnet = STNet()
-        self.stnet.load_state_dict(torch.load(st_weights_path))
+        self.stnet.load_state_dict(torch.load(weights_path)["stn_state_dict"])
         self.lprnet.eval()
         self.stnet.eval()
         self.image_size = (94, 24)
@@ -94,8 +94,8 @@ class Detector(object):
 def det_rec(img):
     det_weights = r"weights/yolov11.pt"  # 车牌检测模型权重
     detector = Detector(det_weights)
-    rec_weights = r"weights/LPRNet_model_Init.pth"  # 车牌识别模型权重
-    recognizer = Recognizer(r"weights/LPRNet_model_Init.pth", r"weights/Final_STN_model.pth")
+    rec_weights = r"weights/lpr_stn.pt"  # 车牌识别模型权重
+    recognizer = Recognizer(rec_weights)
     crop_img = detector.detect(img)                       # 车牌图像
     pred = recognizer.recognize(crop_img)                     # 车牌号
     return pred, crop_img
