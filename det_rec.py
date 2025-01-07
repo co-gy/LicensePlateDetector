@@ -5,6 +5,7 @@ from ultralytics import YOLO
 from model.LPRNET import LPRNet
 from model.STN import STNet
 from deblur import Debluror
+from utils.clahe import Clahe3
 
 class Recognizer(object):
     """
@@ -94,23 +95,27 @@ class Detector(object):
 def det_rec(img):
     det_weights = r"weights/yolov11.pt"  # 车牌检测模型权重
     detector = Detector(det_weights)
-    rec_weights = r"weights/lpr_stn.pt"  # 车牌识别模型权重
+    rec_weights = r"weights/lpr_stn_clahe.pt"  # 车牌识别模型权重
     recognizer = Recognizer(rec_weights)
-    crop_img = detector.detect(img)                       # 车牌图像
-    pred = recognizer.recognize(crop_img)                     # 车牌号
+
+    crop_img = detector.detect(img)                             # 车牌图像
+    clahe_img = Clahe3(crop_img)
+    pred = recognizer.recognize(clahe_img)                       # 车牌号
     return pred, crop_img
     
 def main():
-    img_file = r"8a677ceb-0bd0-4c6c-a65a-f46b8e433e6a240713_004450.jpeg"  # 输入图片路径
+    img_file = r"S:\Learn\DATASET\CCPD2019_CAR\images\train\base\01-90_85-274&482_457&544-456&545_270&533_261&470_447&482-0_0_16_24_31_28_31-146-27.jpg"  # 输入图片路径
     IF_DETECT = True
-    IF_SAVE_CROP = False;  save_crop = r"crop.jpg"
-    IF_SAVE_DEBLUR = False; save_deblur = r"deblur.jpg"  # 保存车牌图像路径
+    IF_SAVE_CROP = True;  save_crop = r"crop.jpg"
+    # IF_SAVE_DEBLUR = False; save_deblur = r"deblur.jpg"  # 保存车牌图像路径
+    IF_CLAHE = True
+    IF_SAVE_CLAHE = True; save_clahe = r"clahe.jpg"
 
     # 加载模型
     det_weights = r"weights/yolov11.pt"  # 车牌检测模型权重
     detector = Detector(det_weights)
-    rec_weights = r"weights/LPRNet_model_Init.pth"  # 车牌识别模型权重
-    recognizer = Recognizer(r"weights/LPRNet_model_Init.pth", r"weights/Final_STN_model.pth")
+    rec_weights = r"weights/lpr_stn_clahe.pt"  # 车牌识别模型权重
+    recognizer = Recognizer(rec_weights)
     # debluror = Debluror()
 
     # 检测识别
@@ -119,15 +124,22 @@ def main():
         img = detector.detect(img)                       # 车牌图像
     if IF_SAVE_CROP:
         cv2.imwrite(save_crop, img)
+    if IF_CLAHE:
+        img = Clahe3(img)
+        if IF_SAVE_CLAHE:
+            cv2.imwrite(save_clahe, img)
+
     pred = recognizer.recognize(img)                     # 车牌号
 
-        
     print(pred)
 
 if __name__ == "__main__":
-    # main()
-    img = cv2.imread(r"imgs/CAR/1.jpg")
-    print("shape:", img.shape)
-    pred, crop_img = det_rec(img)
-    print("result:", pred)
+    main()
+
+
+
+    # img = cv2.imread(r"imgs/CAR/1.jpg")
+    # print("shape:", img.shape)
+    # pred, crop_img = det_rec(img)
+    # print("result:", pred)
     # cv2.imwrite("read.jpg", img)
