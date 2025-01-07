@@ -86,14 +86,18 @@ class Detector(object):
 
     def detect(self, img, save=False):
         results = self.model(img)  # 如果模型在GPU上，输入图像应为GPU张量
+        plate_image = None  # 默认没有车牌图像
+
         for result in results:
             boxes = result.boxes
             if len(boxes):
-                x1, y1, x2, y2 = boxes[0].xyxy[0].cpu().numpy()  # 将GPU上的结果转换为CPU
-                plate_image = img[int(y1):int(y2), int(x1):int(x2)]  # 车牌图像
+                x1, y1, x2, y2 = boxes[0].xyxy[0].cpu().numpy()         # 将GPU上的结果转换为CPU
+                plate_image = img[int(y1):int(y2), int(x1):int(x2)]     # 车牌图像
             else:
                 print("No plate detected!")
-            return plate_image
+                plate_image = None  # 如果没有检测到车牌，返回None
+
+        return plate_image
 
 
 def det_rec(img, device='cpu'):
@@ -103,9 +107,15 @@ def det_rec(img, device='cpu'):
     recognizer = Recognizer(rec_weights, device)
 
     crop_img = detector.detect(img)  # 车牌图像
+
+    # 检测失败处理
+    if crop_img is None:
+        return None, None  # 如果没有检测到车牌，返回None
+
     clahe_img = Clahe3(crop_img)
     pred = recognizer.recognize(clahe_img)  # 车牌号
     return pred, crop_img
+
 
 
 def main(device='cpu'):
